@@ -3,6 +3,8 @@ import cors from 'cors'
 import bodyParser from 'body-parser'
 import mongoose from 'mongoose'
 import bcryptjs from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
 
 
 mongoose.connect('mongodb://localhost/api-example', {
