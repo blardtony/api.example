@@ -36,14 +36,27 @@ app.use(cors({
 
 app.use(bodyParser.json())
 
-app.post('/user', (req, res) =>{
+app.post('/user', async (req, res) =>{
   const email = req.body.email
   const password = req.body.password
   const name = req.body.name
 
   const hash = bcryptjs.hashSync(password, 8)
-
-  console.log(hash)
+  const result = new user ({
+    email,
+    password: hash,
+    name,
+  })
+  try {
+    const data = (await result.save()).toObject()
+    delete data.password
+    res.json(data)
+  } catch (e) {
+    res.status(401)
+    res.json({
+      error: e.errmsg
+    })
+  }
 })
 
 app.get('*', (req, res) => {
