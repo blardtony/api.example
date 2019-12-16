@@ -6,6 +6,7 @@ import bcryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 
+dotenv.config()
 
 mongoose.connect('mongodb://localhost/api-example', {
   useNewUrlParser: true,
@@ -37,6 +38,26 @@ app.use(cors({
 }))
 
 app.use(bodyParser.json())
+function verifyToken (req, res, next) {
+  let token = req.headers.authorization
+  if (typeof token === 'string' && token.startWith('Bearer ')) {
+    token = token.substring(7)
+    try {
+      jwt.verify(token, process.env.SCECRET)
+      return next()
+    } catch (e) {
+      res.status(401)
+      res.json({
+        error : "Invalid token !"
+      })
+    }
+  } else {
+    res.status(401)
+    res.json({
+      error : " Access Token is required !"
+    })
+  }
+}
 
 app.post('/user', async (req, res) =>{
   const email = req.body.email
@@ -59,6 +80,29 @@ app.post('/user', async (req, res) =>{
       error: e.errmsg
     })
   }
+})
+
+app.post('/login', async (req, res) => {
+  const email = req.body.email
+  const password = req.body.password
+  const data = await user.findOne({
+    email
+  })
+  if (bcryptjs.compareSync(password, data.password)) {
+    const token = jwt.sign({
+      id: data._id,
+      name : data.name,
+      email: data.email
+    }, process.env.SCECRET, {
+      expiresIn: 86400 // 60*60*24 secondes donc 1 journée
+    })
+    res.json({
+      token
+    })
+  } else {
+
+  }
+  console.log(data)
 })
 
 app.get('*', (req, res) => {
