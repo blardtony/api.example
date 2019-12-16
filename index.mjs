@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import mongoose from 'mongoose'
+import bcryptjs from 'bcryptjs'
+
 
 mongoose.connect('mongodb://localhost/api-example', {
   useNewUrlParser: true,
@@ -9,6 +11,7 @@ mongoose.connect('mongodb://localhost/api-example', {
 });
 
 const db = mongoose.connection;
+
 db.on('error', console.log);
 db.once('open', () => {
   console.log('mongodb is connected')
@@ -34,7 +37,13 @@ app.use(cors({
 app.use(bodyParser.json())
 
 app.post('/user', (req, res) =>{
-  console.log(req.body)
+  const email = req.body.email
+  const password = req.body.password
+  const name = req.body.name
+
+  const hash = bcryptjs.hashSync(password, 8)
+
+  console.log(hash)
 })
 
 app.get('*', (req, res) => {
