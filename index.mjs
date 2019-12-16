@@ -40,7 +40,7 @@ app.use(cors({
 app.use(bodyParser.json())
 function verifyToken (req, res, next) {
   let token = req.headers.authorization
-  if (typeof token === 'string' && token.startWith('Bearer ')) {
+  if (typeof token === 'string' && token.startsWith('Bearer ')) {
     token = token.substring(7)
     try {
       jwt.verify(token, process.env.SCECRET)
@@ -58,6 +58,10 @@ function verifyToken (req, res, next) {
     })
   }
 }
+app.get('/me', verifyToken, (req, res) =>{
+  res.send('Get me ! ')
+  console.log('Prends moi ! ')
+})
 
 app.post('/user', async (req, res) =>{
   const email = req.body.email
